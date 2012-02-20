@@ -108,7 +108,22 @@ class Server implements Program {
             try {
                 while(true) {                    
                     String message = in.readLine();
-                    if (message != null) System.out.println("Prichozi zprava: "+message);
+                    String command = null;
+                    if (message != null) {
+                        System.out.println("Prichozi zprava: "+message);                    
+                        if (message.startsWith("Geddy ")) {
+                            command = message.substring(6);                            
+                        }
+                    }
+                    if (command != null && command.equals("VLEVO")) {                        
+                        out.print("240 OK (0,1)\r\n");
+                    }
+                    if (command != null && command.equals("KROK")) {                        
+                        out.print("240 OK (0,0)\r\n");
+                    }
+                    if (command != null && command.equals("ZVEDNI")) {
+                        out.print("210 USPECH Pro hloupeho kazdy hloupy.\r\n");
+                    }
                 }
             }
             catch(IOException e) {
@@ -137,6 +152,10 @@ class Client implements Program {
 }
 
 interface Program {
+    
+}
+
+class GameBoard {
     
 }
 
