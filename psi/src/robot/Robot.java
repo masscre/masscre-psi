@@ -61,7 +61,7 @@ class Server implements Program {
                 //vytvoøit proud, do kterého je mo¾né posílat øetìzce
                 PrintStream output = new PrintStream(client.getOutputStream());
 
-                output.println(""); //odeslat aktuální èas a datum
+                output.println("200 Ahoj, tady robot verze 0.1. Oslovuj mne Geddy."); //odeslat aktuální èas a datum
 
                 try {
                     output.close(); //zavøít ná¹ vlastní výstupní proud
