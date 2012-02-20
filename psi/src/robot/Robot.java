@@ -2,6 +2,7 @@ package robot;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -46,41 +47,85 @@ public class Robot {
     
 }
 
-class Server implements Program {
+class Server implements Program {   
     
-    private ServerSocket serverSocket = null;
+    private ServerSocket server;
+    private int port;
+    private List<ClientThread> clients;
     
     public Server(int port) {
+        this.port = port;
+        clients = new java.util.ArrayList<ClientThread>();
         try {
-            serverSocket = new ServerSocket();
-            SocketAddress socketAddress = new InetSocketAddress(InetAddress.getByName("0.0.0.0"), port);
-            serverSocket.bind(socketAddress);
-            
-            while(true) {
-                Socket client = serverSocket.accept(); //poèkat na pøijetí klienta
-                //vytvoøit proud, do kterého je mo¾né posílat øetìzce
-                PrintStream output = new PrintStream(client.getOutputStream());
-
-                output.println("200 Ahoj, tady robot verze 0.1. Oslovuj mne Geddy."); //odeslat aktuální èas a datum
-
-                try {
-                    output.close(); //zavøít ná¹ vlastní výstupní proud
-                    client.close(); //odpojit klienta
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                }
+            server = new ServerSocket(port);
+            while(true) {                
+                Socket socket = server.accept();
+                System.out.println("Nalezeno spojeni");
+                ClientThread ct = new ClientThread(socket);
+                clients.add(ct);
+                ct.start();
             }
-            
-        } catch(IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        finally {            
-            if(serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch(IOException e) {}
+        finally {
+            if(server != null) {
+                //odpojit v¹echny klienty
+                for(ClientThread clt: getClients()) clt.close();
+                clients.clear();
+                try { server.close(); }
+                catch(IOException e) {}
             }
+        }
+    }
+    
+    public synchronized List<ClientThread> getClients() {
+        return clients;
+    }
+    
+    private class ClientThread extends Thread {
+        Socket socket;
+        PrintStream out;
+        BufferedReader in;
+        Boolean pozdraven = false;
+        
+        ClientThread(Socket socket) {
+            this.socket = socket;
+            try {
+                out = new PrintStream(socket.getOutputStream()); //vytvoøit PrintStream
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream())); //vytvoøit BufferedReader
+            }
+            catch(IOException e) {
+                e.printStackTrace(System.err);
+                close();
+            }
+            out.print("200 Ahoj. Oslovuj mne Geddy. \r\n");
+            System.out.println("Client vytvoren");
+        }
+        
+        @Override
+        public void run() {
+            try {
+                while(true) {                    
+                    String message = in.readLine();
+                    if (message != null) System.out.println("Prichozi zprava: "+message);
+                }
+            }
+            catch(IOException e) {
+                System.err.println("Kvuli chybe odpojen klient.");
+                e.printStackTrace(System.err);
+            }
+            finally {
+                close(); //odpojit
+            }
+        }
+        public void close() {
+            getClients().remove(this); //vymazat ze seznamu
+            try {
+                out.close(); //zavøít výstupní proud
+                in.close(); //zavøít vstupní proud
+                socket.close(); //zavøít soket
+            } catch(IOException e) {}
         }
     }
 }
