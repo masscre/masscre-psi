@@ -71,8 +71,7 @@ class Server implements Program {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally {
-            if(server != null) {
-                //odpojit v¹echny klienty
+            if(server != null) {                
                 for(ClientThread clt: getClients()) clt.close();
                 clients.clear();
                 try { server.close(); }
@@ -94,8 +93,8 @@ class Server implements Program {
         ClientThread(Socket socket) {
             this.socket = socket;
             try {
-                out = new PrintStream(socket.getOutputStream()); //vytvoøit PrintStream
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream())); //vytvoøit BufferedReader
+                out = new PrintStream(socket.getOutputStream()); 
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
             }
             catch(IOException e) {
                 e.printStackTrace(System.err);
@@ -137,15 +136,15 @@ class Server implements Program {
                 e.printStackTrace(System.err);
             }
             finally {
-                close(); //odpojit
+                close(); 
             }
         }
         public void close() {
-            getClients().remove(this); //vymazat ze seznamu
+            getClients().remove(this); 
             try {
-                out.close(); //zavøít výstupní proud
-                in.close(); //zavøít vstupní proud
-                socket.close(); //zavøít soket
+                out.close(); 
+                in.close(); 
+                socket.close(); 
             } catch(IOException e) {}
         }
     }
@@ -172,6 +171,7 @@ class ServerWindow extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(320, 200);
         this.setLayout(null);
+        this.setTitle("Robot server");
         jLabel1 = new javax.swing.JLabel();
         jLabel1.setText("Server nasloucha na portu: "+port);
         jLabel1.setBounds(10, 5, 200, 40);
