@@ -7,6 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
 Tomá¹ Malich
@@ -18,7 +20,7 @@ public class Robot {
     private int programState;
     private String serverName;
     private int port;
-    
+    public static ServerWindow window;
     private Program program = null;
     
     public Robot(int state, String serverName, int port) {
@@ -28,7 +30,7 @@ public class Robot {
         if (state == 1) {
             System.out.println("Program pracuje jako server");
             System.out.println("Server nasloucha na portu "+port);
-            ServerWindow window = new ServerWindow(port);  
+            window = new ServerWindow(port);  
             window.setVisible(true);
             program = new Server(this.port);            
         }
@@ -110,19 +112,23 @@ class Server implements Program {
                     String message = in.readLine();
                     String command = null;
                     if (message != null) {
+                        Robot.window.addLine(message);
                         System.out.println("Prichozi zprava: "+message);                    
                         if (message.startsWith("Geddy ")) {
                             command = message.substring(6);                            
                         }
                     }
                     if (command != null && command.equals("VLEVO")) {                        
-                        out.print("240 OK (0,1)\r\n");
+                        
                     }
                     if (command != null && command.equals("KROK")) {                        
-                        out.print("240 OK (0,0)\r\n");
+                        
                     }
                     if (command != null && command.equals("ZVEDNI")) {
-                        out.print("210 USPECH Pro hloupeho kazdy hloupy.\r\n");
+                        
+                    }
+                    if (command != null && command.startsWith("OPRAVIT") && command.length() == 9) {
+                        int procesorNumber = Integer.parseInt(command.substring(8, 9));                        
                     }
                 }
             }
@@ -161,12 +167,26 @@ class GameBoard {
 
 class ServerWindow extends JFrame {
     JLabel jLabel1;
+    JTextArea output;
     public ServerWindow(int port) {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(320, 100);
+        this.setSize(320, 200);
+        this.setLayout(null);
         jLabel1 = new javax.swing.JLabel();
         jLabel1.setText("Server nasloucha na portu: "+port);
+        jLabel1.setBounds(10, 5, 200, 40);
+        output = new JTextArea();
+        output.setBounds(10, 50, 200, 80);
+        output.setEditable(false);      
+        JScrollPane sc = new JScrollPane(output);
+        sc.setBounds(10, 50, 285, 105);
+        this.add(sc);
+        //this.add(output);              
         this.add(jLabel1);
         this.setVisible(true);
     }
+    public void addLine(String line) {
+        output.append(line+"\n");
+        repaint();
+    }    
 }
