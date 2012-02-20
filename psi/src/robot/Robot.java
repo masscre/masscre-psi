@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 /**
 Tomá¹ Malich
@@ -25,6 +27,8 @@ public class Robot {
         if (state == 1) {
             System.out.println("Program pracuje jako server");
             System.out.println("Server nasloucha na portu "+port);
+            ServerWindow window = new ServerWindow(port);  
+            window.setVisible(true);
             program = new Server(this.port);            
         }
         if (state == 2) {
@@ -36,8 +40,8 @@ public class Robot {
         
     }
     
-    public static void main(String[] args) {
-        Robot robot = new Robot(1, "", 3999);          
+    public static void main(String[] args) {        
+        Robot robot = new Robot(1, "", 3999);         
     }   
     
 }
@@ -57,7 +61,7 @@ class Server implements Program {
                 //vytvoøit proud, do kterého je mo¾né posílat øetìzce
                 PrintStream output = new PrintStream(client.getOutputStream());
 
-                output.println("Sem frajer"); //odeslat aktuální èas a datum
+                output.println(""); //odeslat aktuální èas a datum
 
                 try {
                     output.close(); //zavøít ná¹ vlastní výstupní proud
@@ -89,4 +93,16 @@ class Client implements Program {
 
 interface Program {
     
+}
+
+class ServerWindow extends JFrame {
+    JLabel jLabel1;
+    public ServerWindow(int port) {
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(320, 100);
+        jLabel1 = new javax.swing.JLabel();
+        jLabel1.setText("Server nasloucha na portu: "+port);
+        this.add(jLabel1);
+        this.setVisible(true);
+    }
 }
