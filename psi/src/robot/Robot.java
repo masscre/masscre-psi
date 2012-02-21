@@ -174,7 +174,7 @@ class ServerWindow extends JFrame {
         this.setTitle("Robot server");
         jLabel1 = new javax.swing.JLabel();
         jLabel1.setText("Server nasloucha na portu: "+port);
-        jLabel1.setBounds(10, 5, 200, 40);
+        jLabel1.setBounds(10, 5, 250, 40);
         output = new JTextArea();
         output.setBounds(10, 50, 200, 80);
         output.setEditable(false);      
